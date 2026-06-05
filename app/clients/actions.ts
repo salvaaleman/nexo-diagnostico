@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function createClientRecord(formData: FormData) {
@@ -9,32 +8,41 @@ export async function createClientRecord(formData: FormData) {
 
   const payload = {
     name: String(formData.get("name") ?? "").trim(),
-    last_name: (formData.get("last_name") as string) || null,
-    email: (formData.get("email") as string) || null,
-    brand: (formData.get("brand") as string) || null,
-    sector: (formData.get("sector") as string) || null,
-    phone: (formData.get("phone") as string) || null,
-    web: (formData.get("web") as string) || null,
-    socials: (formData.get("socials") as string) || null,
-    notes: (formData.get("notes") as string) || null,
+    last_name: String(formData.get("last_name") ?? "").trim() || null,
+    email: String(formData.get("email") ?? "").trim() || null,
+    brand: String(formData.get("brand") ?? "").trim() || null,
+    sector: String(formData.get("sector") ?? "").trim() || null,
+    phone: String(formData.get("phone") ?? "").trim() || null,
+    web: String(formData.get("web") ?? "").trim() || null,
+    socials: String(formData.get("socials") ?? "").trim() || null,
+    notes: String(formData.get("notes") ?? "").trim() || null,
   };
 
   if (!payload.name) return;
 
-  const { data, error } = await supabase
+  const { data: client, error: clientError } = await supabase
     .from("clients")
     .insert(payload)
     .select("id")
     .single();
 
-  if (error || !data?.id) {
-    // En producción aquí podríamos lanzar un error con mejor mensaje.
-    console.error("Error creando cliente:", error);
+  if (clientError || !client?.id) {
+    console.error("Error creando cliente:", clientError);
     return;
   }
 
-  revalidatePath("/clients");
-  redirect(`/clients/${data.id}`);
+  const { data: diagnosis, error: diagnosisError } = await supabase
+    .from("diagnoses")
+    .insert({ client_id: client.id, status: "iniciado" })
+    .select("id")
+    .single();
+
+  if (diagnosisError || !diagnosis?.id) {
+    console.error("Error creando diagnóstico:", diagnosisError);
+    return;
+  }
+
+  redirect(`/diagnoses/${diagnosis.id}`);
 }
 
 export async function createDiagnosis(clientId: string) {
