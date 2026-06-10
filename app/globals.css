@@ -2,35 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════
+   NEXO IA — Paleta Claro Ejecutivo
+   Basado en el mockup de diseño aprobado
+   ═══════════════════════════════════════════ */
+
 :root {
-  --ink: #FFFFFF;
-  --paper: #0F1B2D;
-  --card: #1A6BB5;
-  --muted: #B0C4DE;
-  --line: rgba(79, 195, 247, 0.18);
-  --accent: #4FC3F7;
+  /* ── Fondos ── */
+  --paper: #F4F6F9;          /* Fondo principal dashboard */
+  --card: #FFFFFF;           /* Tarjetas blancas */
+  --sidebar: #0F1B2D;        /* Sidebar azul noche (se mantiene) */
+
+  /* ── Textos ── */
+  --ink: #1F2937;            /* Texto principal - gris oscuro */
+  --ink-strong: #111827;     /* Títulos grandes - casi negro */
+  --muted: #6B7280;          /* Subtítulos, descripciones */
+  --hint: #9CA3AF;           /* Texto muy secundario / 100 */
+  --ghost: #E5E7EB;          /* Números grandes 01-09 fantasmas */
+
+  /* ── Acentos corporativos ── */
+  --accent: #2563EB;         /* Azul principal iconos, links */
+  --accent-light: #3B82F6;   /* Azul claro hover */
+  --accent-bg: #DBEAFE;      /* Fondo badges azules */
+  --accent-border: #BFDBFE;  /* Bordes badges azules */
+
+  /* ── Badges verdes (CRÍTICO / ATENCIÓN) ── */
+  --badge-green-bg: #D1FAE5;
+  --badge-green-text: #059669;
+  --badge-green-border: #A7F3D0;
+
+  /* ── Scores / Progreso ── */
+  --score: #059669;          /* Números 38, 45, 32... verde esmeralda */
+  --progress-bg: #E5E7EB;    /* Barra de progreso fondo */
+  --progress-fill: #059669;  /* Barra de progreso relleno */
+
+  /* ── Bordes y líneas ── */
+  --line: #E5E7EB;           /* Bordes suaves */
+  --line-strong: #D1D5DB;    /* Bordes un poco más marcados */
+
+  /* ── Sombras ── */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 html,
 body {
-  background: #0F1B2D;
-  color: #FFFFFF;
+  background: var(--paper);
+  color: var(--ink);
 }
 
 body {
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans), 'Poppins', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: var(--accent);
-  color: #0F1B2D;
+  background: var(--accent-bg);
+  color: var(--accent);
 }
 
-/* Inputs base */
+/* ═══════════════════════════════════════════
+   Inputs y Formularios (modo claro)
+   ═══════════════════════════════════════════ */
+
 .field {
   width: 100%;
-  background: rgba(255, 255, 255, 0.04);
+  background: #FFFFFF;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 0.7rem 0.85rem;
@@ -42,7 +79,11 @@ body {
 .field:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.field::placeholder {
+  color: var(--hint);
 }
 
 textarea.field {
@@ -51,23 +92,28 @@ textarea.field {
   line-height: 1.5;
 }
 
+/* ═══════════════════════════════════════════
+   Botones (modo claro)
+   ═══════════════════════════════════════════ */
+
 .btn {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
   background: var(--accent);
-  color: #0F1B2D;
+  color: #FFFFFF;
   border: 1px solid var(--accent);
   border-radius: 8px;
   padding: 0.6rem 1.1rem;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity .15s ease;
+  transition: all .15s ease;
 }
 
 .btn:hover {
-  opacity: .88;
+  background: var(--accent-light);
+  border-color: var(--accent-light);
 }
 
 .btn-ghost {
@@ -78,8 +124,13 @@ textarea.field {
 
 .btn-ghost:hover {
   border-color: var(--accent);
-  opacity: 1;
+  color: var(--accent);
+  background: var(--accent-bg);
 }
+
+/* ═══════════════════════════════════════════
+   Tipografía y etiquetas
+   ═══════════════════════════════════════════ */
 
 .label {
   font-size: .9rem;
@@ -90,4 +141,154 @@ textarea.field {
 .hint {
   font-size: .82rem;
   color: var(--muted);
+}
+
+/* ═══════════════════════════════════════════
+   Utilidades para el Dashboard
+   ═══════════════════════════════════════════ */
+
+/* Badges */
+.badge-critical {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+  border: 1px solid var(--badge-green-border);
+}
+
+.badge-attention {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+  border: 1px solid var(--badge-green-border);
+}
+
+.badge-intervention {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+}
+
+/* Números fantasmas 01-09 */
+.ghost-number {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--ghost);
+  line-height: 1;
+}
+
+/* Scores */
+.score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--score);
+  line-height: 1;
+}
+
+.score-suffix {
+  font-size: 0.875rem;
+  color: var(--hint);
+  font-weight: 500;
+}
+
+/* Barra de progreso */
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--progress-bg);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--progress-fill);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Tarjetas */
+.dashboard-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.dashboard-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+/* Sidebar items */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  color: #D1D5DB;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+}
+
+.sidebar-item.active {
+  background: var(--accent);
+  color: #FFFFFF;
+}
+
+/* Iconos de tarjetas */
+.card-icon {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+/* Flechas de tarjetas */
+.card-arrow {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--accent-border);
+  color: var(--accent-light);
+  transition: all 0.15s ease;
+}
+
+.card-arrow:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent);
 }

@@ -1,9 +1,17 @@
 import type { DiagnosticPattern } from "./patterns";
 
 export type RecommendedPack =
-  | "Intervención Visibilidad"
-  | "Intervención Sistema"
-  | "Intervención Completa"
+  | "Diagnóstico NEXO"
+  | "NEXO Esencial"
+  | "NEXO Estratégico"
+  | "NEXO Implementación"
+  | "PLUS Captación y Mensaje"
+  | "PLUS Seguimiento y Proceso Comercial"
+  | "PLUS Automatización Estratégica"
+  | "Auditoría Estratégica de Redes Sociales"
+  | "Optimización Estratégica de Perfil"
+  | "Creación de Contenidos Base"
+  | "Creación de Contenidos Pro"
   | "No apto todavía";
 
 export type PriorityPlanItem = {
@@ -140,26 +148,18 @@ function buildMaturityLevel(patterns: DiagnosticPattern[]) {
   ].filter(Boolean).length;
 
   if (total >= 10 || (maxSeverity >= 9 && affectedAreas >= 3)) {
-    return "Desestructurado con impacto transversal";
+    return "Desestructurado con múltiples frentes críticos";
   }
 
-  if (total >= 8 || affectedAreas >= 3) {
-    return "Desestructurado";
-  }
-
-  if (total >= 5 || maxSeverity >= 7) {
-    return "Con bloqueos relevantes";
+  if (total >= 6 || affectedAreas >= 2) {
+    return "Intermedio con bloqueos conectados";
   }
 
   if (total >= 3) {
-    return "En desarrollo";
+    return "Inicial con áreas prioritarias visibles";
   }
 
-  if (total >= 1) {
-    return "Estructurado con áreas de mejora";
-  }
-
-  return "Sin datos suficientes";
+  return "Básico con señales puntuales";
 }
 
 function buildSummary(
@@ -186,48 +186,27 @@ function buildSummary(
 
   const hasVisibilityProblem = hasAnyVariable(patterns, ["contenido", "captacion"]);
 
-  if (
-    context?.has_operational_assets &&
-    context?.has_ai_tools &&
-    hasStrategyProblem &&
-    hasSystemProblem
-  ) {
-    return "El diagnóstico muestra una contradicción relevante: el negocio dispone de herramientas, IA y activos operativos, pero todavía no los está convirtiendo en un sistema comercial claro y coherente.";
+  if (context?.willing_to_invest === false) {
+    return "El diagnóstico muestra señales relevantes, pero también una posible falta de disposición para intervenir ahora. Antes de recomendar ejecución, conviene validar compromiso, prioridades y capacidad real de avance.";
+  }
+
+  if (variables.has("ia") && (hasStrategyProblem || hasSystemProblem)) {
+    return "El negocio muestra intención de usar herramientas o inteligencia artificial, pero todavía existen bloqueos estratégicos o comerciales que deben ordenarse antes de escalar procesos.";
   }
 
   if (hasStrategyProblem && hasSystemProblem && hasVisibilityProblem) {
-    return "El diagnóstico muestra un bloqueo transversal: la oferta, el mensaje, la captación y el sistema comercial no están trabajando como una misma estructura.";
-  }
-
-  if (hasStrategyProblem && hasSystemProblem) {
-    return "El diagnóstico muestra que el negocio no necesita solo más herramientas, sino una arquitectura comercial más clara que conecte oferta, mensaje, seguimiento y conversión.";
+    return "El diagnóstico muestra un bloqueo integral: la oferta, la captación y el seguimiento no están suficientemente alineados. Esto puede provocar esfuerzo comercial sin una dirección clara.";
   }
 
   if (hasStrategyProblem && hasVisibilityProblem) {
-    return "El diagnóstico muestra que la visibilidad existe o puede crecer, pero está limitada por una propuesta que todavía no se entiende con suficiente rapidez.";
+    return "El principal bloqueo está en la forma de comunicar y atraer oportunidades. El negocio necesita clarificar su propuesta antes de aumentar acciones de visibilidad.";
   }
 
-  if (variables.has("ia") && variables.has("sistemas")) {
-    return "El diagnóstico muestra que la tecnología está presente, pero todavía no funciona como un sistema operativo comercial claro.";
+  if (hasSystemProblem) {
+    return "El negocio no parece tener un problema únicamente de visibilidad. La señal más importante está en el seguimiento, la conversión y la falta de estructura comercial.";
   }
 
-  if (mainPattern.name === "No tienen una oferta clara, tienen una lista de servicios") {
-    return "El diagnóstico muestra que el bloqueo principal está en la arquitectura de la oferta.";
-  }
-
-  if (mainPattern.name === "No tienen una propuesta de valor, tienen un catálogo") {
-    return "El diagnóstico muestra que el negocio necesita transformar servicios sueltos en una propuesta de valor comprensible y vendible.";
-  }
-
-  if (mainPattern.name === "No saben explicar claramente qué hacen") {
-    return "El diagnóstico muestra que el primer bloqueo está en la claridad del mensaje.";
-  }
-
-  if (mainPattern.name === "Intentan hablar para todos y no conectan con nadie") {
-    return "El diagnóstico muestra que el negocio necesita definir con mayor precisión a quién quiere atraer y qué problema quiere resolver primero.";
-  }
-
-  return `El diagnóstico muestra como bloqueo principal: ${mainPattern.name}. El área dominante afectada es ${dominantArea.label}.`;
+  return `El diagnóstico indica que el principal cuello de botella está relacionado con ${dominantArea.label}. El patrón más relevante detectado es: ${mainPattern.name}.`;
 }
 
 function buildStrategicExplanation(
@@ -238,8 +217,8 @@ function buildStrategicExplanation(
   const variables = getVariables(patterns);
 
   const hasOfferProblem = hasAnyVariable(patterns, [
-    "propuesta_valor",
     "claridad_mensaje",
+    "propuesta_valor",
     "diferenciacion",
   ]);
 
@@ -249,58 +228,31 @@ function buildStrategicExplanation(
     "conversion",
     "seguimiento",
     "sistemas",
-    "ia",
   ]);
 
   const hasTechButNoStructure =
-    (hasAnyVariable(patterns, ["sistemas", "ia"]) ||
-      context?.has_operational_assets ||
-      context?.has_ai_tools) &&
-    hasAnyVariable(patterns, [
-      "propuesta_valor",
-      "claridad_mensaje",
-      "seguimiento",
-      "conversion",
-    ]);
-
-  if (
-    context?.has_operational_assets &&
-    context?.has_ai_tools &&
-    hasOfferProblem &&
-    hasSystemProblem
-  ) {
-    return "El problema principal no es la falta de recursos.\n\nEl diagnóstico muestra que el negocio ya cuenta con herramientas, IA, activos operativos o sistemas de apoyo, pero todavía no existe una arquitectura clara que conecte esos recursos con una oferta principal, un mensaje preciso y un proceso comercial consistente.\n\nCuando esto ocurre, la tecnología ayuda a producir más, organizar más o responder más rápido, pero no necesariamente mejora la conversión ni la claridad de compra.\n\nLa prioridad es convertir los activos disponibles en un sistema comercial: qué oportunidad se atrae, cómo se califica, qué mensaje recibe, qué objeciones se trabajan y qué decisión se busca provocar.";
-  }
-
-  if (hasOfferProblem && hasClientProblem && hasSystemProblem) {
-    return "El problema principal no está en una única pieza aislada.\n\nEl diagnóstico muestra que el negocio tiene actividad, recursos y capacidad de trabajo, pero todavía no existe una arquitectura clara que conecte cliente ideal, propuesta, mensaje, captación y seguimiento.\n\nCuando estas piezas no están alineadas, el cliente potencial puede percibir valor, pero no entiende con rapidez qué se le ofrece, por qué es relevante para su situación y cuál es el siguiente paso lógico.\n\nEsto provoca que la conversión dependa demasiado de conversaciones individuales, explicaciones largas y esfuerzo personal. El negocio no necesita simplemente hacer más contenido o usar más herramientas; necesita ordenar el sistema que convierte interés en decisión.";
-  }
+    (variables.has("ia") ||
+      context?.has_ai_tools ||
+      context?.has_operational_assets) &&
+    (hasOfferProblem || hasSystemProblem);
 
   if (hasTechButNoStructure) {
-    return "El problema principal no es la falta de tecnología.\n\nEl diagnóstico muestra que ya existen herramientas, IA o intención de sistematizar, pero esas piezas no están conectadas bajo una estrategia comercial clara.\n\nCuando la tecnología se incorpora sin una oferta definida, sin un mensaje preciso y sin un proceso de seguimiento bien ordenado, termina acelerando tareas sueltas en lugar de mejorar la conversión.\n\nLa prioridad debe ser convertir las herramientas disponibles en un sistema operativo simple: qué se capta, cómo se califica, qué mensaje recibe cada oportunidad y qué decisión se busca provocar.";
+    return "Existe una señal clara de querer apoyarse en herramientas, IA o sistemas, pero el diagnóstico indica que todavía hay problemas previos de oferta, mensaje, seguimiento o proceso. Automatizar en este punto podría acelerar el desorden si antes no se define qué debe ocurrir, con quién, cuándo y con qué objetivo.";
   }
 
-  if (hasOfferProblem && hasContentProblem) {
-    return "El problema principal no es publicar más ni aumentar la presencia.\n\nEl diagnóstico muestra que la visibilidad está condicionada por una propuesta que todavía no se entiende con suficiente precisión.\n\nCuando el contenido habla de muchas cosas, pero la oferta no está bien empaquetada, el público puede interesarse por ideas sueltas sin avanzar hacia una decisión comercial clara.\n\nAntes de escalar captación, conviene ordenar qué problema se resuelve, para quién, con qué resultado y por qué esta propuesta es distinta.";
+  if (hasOfferProblem && hasClientProblem) {
+    return "El negocio necesita trabajar antes la base estratégica. Cuando no está claro para quién se vende, qué se promete y por qué el cliente debería elegir la propuesta, cualquier esfuerzo posterior en contenido, captación o automatización pierde precisión.";
   }
 
-  if (mainPattern.name === "No tienen una oferta clara, tienen una lista de servicios") {
-    return "El problema principal no es la captación ni el contenido.\n\nEl negocio está intentando vender múltiples servicios sin una oferta principal claramente definida.\n\nCuando esto ocurre, el cliente potencial entiende partes de lo que se ofrece, pero no comprende con rapidez qué problema se resuelve, qué resultado obtiene ni por qué debería elegir esta propuesta frente a otras alternativas.\n\nComo consecuencia, la captación se vuelve más difícil, las conversaciones comerciales requieren demasiada explicación y la conversión termina dependiendo más del esfuerzo individual que de la claridad de la oferta.";
+  if (hasContentProblem && !hasOfferProblem) {
+    return "La presencia comercial necesita dejar de depender de acciones aisladas. El contenido y la captación deben conectarse con una intención comercial clara, no funcionar únicamente como visibilidad o actividad.";
   }
 
-  if (mainPattern.name === "No tienen una propuesta de valor, tienen un catálogo") {
-    return "El problema principal no es que falten productos, servicios o conocimiento.\n\nEl negocio tiene elementos que ofrecer, pero todavía no los ha traducido en una propuesta de valor clara para el cliente.\n\nCuando la comunicación se presenta como catálogo, el cliente ve opciones, características o servicios sueltos, pero no entiende con precisión qué cambia para él, qué problema se reduce o qué resultado puede esperar.\n\nComo consecuencia, la decisión de compra se enfría, la comparación con otras alternativas aumenta y el precio empieza a pesar más que el valor percibido.";
+  if (hasSystemProblem) {
+    return "El diagnóstico muestra que el problema no está únicamente en atraer más oportunidades, sino en cómo se gestionan después. Sin seguimiento, control y proceso comercial, parte del esfuerzo de captación se pierde antes de convertirse en venta.";
   }
 
-  if (mainPattern.name === "No saben explicar claramente qué hacen") {
-    return "El problema principal está en la claridad inicial del mensaje.\n\nEl negocio puede tener valor real, pero si la explicación requiere demasiado esfuerzo, el cliente potencial no llega a comprender rápidamente qué se ofrece, para quién es y por qué debería prestarle atención.\n\nCuando esto ocurre, la captación pierde fuerza, la confianza tarda más en construirse y cada conversación comercial empieza desde cero.\n\nAntes de escalar contenido, automatización o campañas, hay que ordenar la forma en que el negocio se explica.";
-  }
-
-  if (mainPattern.name === "Intentan hablar para todos y no conectan con nadie") {
-    return "El problema principal está en la falta de foco comercial.\n\nEl negocio intenta mantener abiertas demasiadas posibilidades y eso debilita el mensaje.\n\nCuando se habla para todo el mundo, nadie siente que la propuesta está pensada específicamente para su situación, su problema o su deseo.\n\nComo consecuencia, el contenido se vuelve genérico, la captación pierde precisión y la conversión depende demasiado de explicar caso por caso lo que debería entenderse desde el primer contacto.";
-  }
-
-  return `El diagnóstico muestra un bloqueo principal en: ${mainPattern.name}.\n\n${mainPattern.description}\n\nEste problema no debe tratarse como un hecho aislado, porque afecta la forma en que el cliente potencial entiende la propuesta, percibe el valor y decide si avanzar o no.`;
+  return `El patrón dominante es "${mainPattern.name}". Esta señal debe interpretarse como una prioridad estratégica porque puede estar afectando varias decisiones comerciales posteriores.`;
 }
 
 function buildActiveStrengths(
@@ -310,69 +262,52 @@ function buildActiveStrengths(
   const variables = getVariables(patterns);
   const strengths: string[] = [];
 
-  if (context?.has_commercial_assets && context?.has_operational_assets) {
-    strengths.push("Existen pruebas de confianza y activos operativos que permiten mejorar conversión sin depender únicamente de más captación");
-  } else if (context?.has_commercial_assets) {
-    strengths.push("Existen pruebas de confianza comercial que pueden reforzar la propuesta, como testimonios o casos de éxito");
-  } else if (context?.has_operational_assets) {
-    strengths.push("El negocio ya cuenta con activos operativos aprovechables, como CRM, base de datos o herramientas de automatización");
+  if (context?.has_previous_experience) {
+    strengths.push(
+      "Existe experiencia previa que puede convertirse en criterio comercial si se ordena correctamente."
+    );
   }
 
-  if (context?.has_ai_tools && context?.has_operational_assets) {
-    strengths.push("La IA y las herramientas disponibles pueden convertirse en un sistema de seguimiento, priorización y decisión comercial");
-  } else if (context?.has_ai_tools) {
-    strengths.push("La IA ya forma parte del trabajo habitual y puede pasar de apoyo puntual a sistema de decisión y ejecución");
+  if (context?.has_commercial_assets) {
+    strengths.push(
+      "El negocio ya cuenta con activos comerciales que pueden ser reutilizados o mejorados."
+    );
   }
 
-  if (
-    context?.has_previous_experience &&
-    (context?.willing_to_invest || context?.has_commercial_assets)
-  ) {
-    strengths.push("La experiencia previa con consultores o formaciones permite valorar mejor una intervención concreta, práctica y no genérica");
-  } else if (context?.has_previous_experience) {
-    strengths.push("Existe experiencia previa con consultores, agencias o formaciones, lo que permite distinguir mejor entre teoría genérica y ayuda realmente útil");
+  if (context?.has_operational_assets) {
+    strengths.push(
+      "Hay elementos operativos que pueden servir como base para construir un sistema más claro."
+    );
   }
 
-  if (context?.willing_to_invest) {
-    strengths.push("Hay disposición a invertir si la propuesta demuestra encaje, claridad de proceso y utilidad práctica");
+  if (context?.has_ai_tools) {
+    strengths.push(
+      "Existe apertura hacia herramientas e IA, lo que puede acelerar la implementación cuando la estrategia esté definida."
+    );
   }
 
-  if (
-    variables.has("propuesta_valor") ||
-    variables.has("claridad_mensaje") ||
-    variables.has("diferenciacion")
-  ) {
-    strengths.push("Hay valor real que puede convertirse en una oferta más clara, específica y vendible");
+  if (context?.works_alone) {
+    strengths.push(
+      "La toma de decisiones puede ser rápida al depender de una sola persona, siempre que exista claridad estratégica."
+    );
   }
 
-  if (variables.has("cliente_ideal")) {
-    strengths.push("El negocio muestra señales suficientes para redefinir mejor a quién debe atraer y a quién debe evitar");
+  if (variables.has("captacion") || variables.has("contenido")) {
+    strengths.push(
+      "Ya existe conciencia sobre la necesidad de generar visibilidad y oportunidades."
+    );
   }
 
-  if (
-    (variables.has("contenido") || variables.has("captacion")) &&
-    (variables.has("propuesta_valor") || variables.has("cliente_ideal"))
-  ) {
-    strengths.push("La visibilidad puede ganar impacto al conectarse con una oferta principal y un cliente más preciso");
-  } else if (variables.has("contenido") || variables.has("captacion")) {
-    strengths.push("La visibilidad puede ganar impacto si el contenido se conecta con una oferta y un cliente más precisos");
+  if (variables.has("seguimiento") || variables.has("conversion")) {
+    strengths.push(
+      "El negocio ya está detectando señales vinculadas a la conversión y al proceso comercial."
+    );
   }
 
-  if (
-    (variables.has("conversion") || variables.has("seguimiento")) &&
-    context?.has_operational_assets
-  ) {
-    strengths.push("El seguimiento puede mejorar aprovechando activos ya existentes, sin tener que construir todo desde cero");
-  } else if (variables.has("conversion") || variables.has("seguimiento")) {
-    strengths.push("Existe margen claro para mejorar ventas sin depender únicamente de más alcance o más publicaciones");
-  }
-
-  if (patterns.length >= 7) {
-    strengths.push("Los problemas detectados están conectados, lo que permite intervenir con una estrategia completa y no con acciones aisladas");
-  }
-
-  if (strengths.length < 5) {
-    strengths.push("Existe una base de negocio aprovechable sobre la que construir una intervención ordenada");
+  if (strengths.length === 0) {
+    strengths.push(
+      "El principal activo actual es haber iniciado un proceso de diagnóstico antes de seguir ejecutando acciones aisladas."
+    );
   }
 
   return unique(strengths).slice(0, 5);
@@ -384,67 +319,76 @@ function buildPriorityPlan(patterns: DiagnosticPattern[]): PriorityPlanItem[] {
   const priorities: Array<PriorityPlanItem & { weight: number }> = [];
 
   if (
-    variables.has("propuesta_valor") ||
     variables.has("claridad_mensaje") ||
+    variables.has("propuesta_valor") ||
     variables.has("diferenciacion")
   ) {
     priorities.push({
-      title: "Convertir la oferta en una propuesta principal",
+      title: "Clarificar la propuesta comercial",
       reason:
-        "Porque el cliente necesita entender con rapidez qué problema se resuelve, qué resultado obtiene y por qué debería elegir esta opción frente a otras.",
+        "Antes de captar más oportunidades, el negocio necesita explicar con precisión qué ofrece, para quién y qué resultado promete.",
       weight: 100,
     });
   }
 
   if (variables.has("cliente_ideal")) {
     priorities.push({
-      title: "Definir cliente, problema y situación de compra",
+      title: "Definir el cliente prioritario",
       reason:
-        "Porque una oferta débilmente segmentada obliga a explicar demasiado, atrae oportunidades desiguales y reduce la fuerza del mensaje.",
+        "Sin un cliente claro, el mensaje, el contenido y la captación se vuelven demasiado generales.",
+      weight: 95,
+    });
+  }
+
+  if (variables.has("seguimiento") || variables.has("conversion")) {
+    priorities.push({
+      title: "Ordenar el seguimiento comercial",
+      reason:
+        "Las oportunidades pueden perderse si no existe un proceso claro para avanzar conversaciones y gestionar objeciones.",
       weight: 90,
     });
   }
 
-  if (variables.has("contenido") || variables.has("captacion")) {
+  if (variables.has("captacion")) {
     priorities.push({
-      title: "Reenfocar contenido y captación hacia oportunidades reales",
+      title: "Diseñar una captación más consistente",
       reason:
-        "Porque la visibilidad solo tiene valor si atrae personas con un problema concreto, capacidad de decisión y encaje con la propuesta.",
-      weight: 70,
+        "El negocio necesita dejar de depender solo de acciones sueltas o recomendaciones y construir un flujo mínimo de oportunidades.",
+      weight: 80,
     });
   }
 
-  if (variables.has("conversion") || variables.has("seguimiento")) {
+  if (variables.has("contenido")) {
     priorities.push({
-      title: "Estructurar seguimiento y conversión",
+      title: "Conectar el contenido con objetivos comerciales",
       reason:
-        "Porque captar interés no sirve si después no existe un proceso claro para acompañar, responder objeciones y llevar al cliente hacia una decisión.",
-      weight: 80,
+        "Publicar sin sistema puede generar actividad, pero no necesariamente oportunidades cualificadas.",
+      weight: 75,
     });
   }
 
   if (variables.has("sistemas") || variables.has("ia")) {
     priorities.push({
-      title: "Integrar IA y sistemas en un proceso operativo simple",
+      title: "Definir procesos antes de automatizar",
       reason:
-        "Porque la IA y las herramientas deben ordenar decisiones, seguimiento y ejecución; no convertirse en tareas sueltas sin impacto comercial.",
-      weight: variables.has("conversion") || variables.has("seguimiento") ? 75 : 55,
+        "La tecnología solo debe escalar procesos que ya tienen lógica, objetivo y criterio de seguimiento.",
+      weight: 70,
     });
   }
 
-  if (priorities.length === 0) {
-    priorities.push({
-      title: "Revisar la base estratégica antes de implementar",
-      reason:
-        "Porque no hay suficientes señales para priorizar con seguridad. Conviene validar primero oferta, cliente ideal, mensaje y capacidad real de ejecución.",
-      weight: 100,
-    });
+  const ordered = priorities.sort((a, b) => b.weight - a.weight).slice(0, 4);
+
+  if (ordered.length === 0) {
+    return [
+      {
+        title: "Completar lectura estratégica",
+        reason:
+          "La información actual no permite priorizar con precisión. Conviene revisar más evidencias antes de decidir una intervención.",
+      },
+    ];
   }
 
-  return priorities
-    .sort((a, b) => b.weight - a.weight)
-    .map(({ weight, ...item }) => item)
-    .slice(0, 5);
+  return ordered.map(({ title, reason }) => ({ title, reason }));
 }
 
 function buildRecommendedFocus(
@@ -474,7 +418,8 @@ function buildRecommendedFocus(
   }
 
   if (
-    (variables.has("sistemas") || variables.has("ia")) ||
+    variables.has("sistemas") ||
+    variables.has("ia") ||
     context?.has_operational_assets ||
     context?.has_ai_tools
   ) {
@@ -501,37 +446,179 @@ function buildPackReason(
   patterns: DiagnosticPattern[],
   context?: DiagnosticContext
 ) {
+  const mainPattern = getMainPattern(patterns);
   const affectedLabels = getAffectedAreaLabels(patterns);
   const affectedText = affectedLabels.slice(0, 5).join(", ");
 
-  const hasTechButNoStructure =
-    (hasAnyVariable(patterns, ["sistemas", "ia"]) ||
-      context?.has_operational_assets ||
-      context?.has_ai_tools) &&
-    hasAnyVariable(patterns, [
-      "propuesta_valor",
-      "claridad_mensaje",
-      "seguimiento",
-      "conversion",
-    ]);
-
-  if (recommendedPack === "Intervención Completa") {
-    if (hasTechButNoStructure) {
-      return "El diagnóstico muestra que existen herramientas, IA o activos operativos, pero la oferta, el mensaje y el seguimiento todavía no están alineados. Se recomienda una Intervención Completa para ordenar estrategia, captación, conversión y sistema operativo.";
-    }
-
-    return `El diagnóstico muestra problemas conectados en varias áreas críticas: ${affectedText}. Se recomienda una Intervención Completa porque actuar sobre una sola pieza dejaría bloqueos importantes sin resolver.`;
+  if (recommendedPack === "PLUS Captación y Mensaje") {
+    return "El negocio necesita dejar de depender solo de recomendaciones y construir una base clara para generar oportunidades comerciales con un mensaje más definido.";
   }
 
-  if (recommendedPack === "Intervención Sistema") {
-    return "El bloqueo principal está en procesos, seguimiento, conversión, sistemas o IA. Se recomienda una Intervención Sistema para convertir herramientas y contactos en un flujo comercial más claro.";
+  if (recommendedPack === "NEXO Esencial") {
+    return "El principal bloqueo está concentrado en una zona crítica del negocio. Se recomienda corregir primero esa área antes de ampliar la intervención.";
   }
 
-  if (recommendedPack === "Intervención Visibilidad") {
-    return "El negocio necesita fortalecer claridad, posicionamiento, contenido o captación antes de escalar. Se recomienda una Intervención Visibilidad enfocada en hacer más comprensible y atractiva la propuesta.";
+  if (recommendedPack === "PLUS Seguimiento y Proceso Comercial") {
+    return "Las oportunidades pueden estar existiendo, pero se están perdiendo por falta de seguimiento, mensajes, fases comerciales y control del proceso.";
+  }
+
+  if (recommendedPack === "Creación de Contenidos Base") {
+    return "El contenido necesita una planificación mínima, coherencia comercial y una estructura mensual para dejar de depender de la improvisación.";
+  }
+
+  if (recommendedPack === "Creación de Contenidos Pro") {
+    return "El contenido necesita un sistema más sólido de posicionamiento, autoridad, calendario editorial y conexión con objetivos comerciales.";
+  }
+
+  if (recommendedPack === "Auditoría Estratégica de Redes Sociales") {
+    return "El perfil digital muestra señales de desalineación, pero conviene revisar primero la presencia actual antes de ejecutar cambios concretos.";
+  }
+
+  if (recommendedPack === "Optimización Estratégica de Perfil") {
+    return "El perfil digital necesita ajustes concretos para comunicar mejor qué ofrece el negocio, a quién ayuda y qué acción debe tomar el visitante.";
+  }
+
+  if (recommendedPack === "NEXO Estratégico") {
+    return `El diagnóstico muestra problemas conectados en áreas estratégicas del negocio${
+      affectedText ? `: ${affectedText}` : ""
+    }. Se recomienda ordenar la base antes de ejecutar acciones aisladas.`;
+  }
+
+  if (recommendedPack === "NEXO Implementación") {
+    return "El negocio necesita convertir la estrategia en materiales, estructura y activos concretos para facilitar la ejecución y reducir dependencia de la persona.";
+  }
+
+  if (recommendedPack === "PLUS Automatización Estratégica") {
+    return "Existen procesos que podrían automatizarse, pero primero debe diseñarse la arquitectura, la lógica de seguimiento y las prioridades de implementación.";
+  }
+
+  if (recommendedPack === "Diagnóstico NEXO") {
+    return "La información disponible apunta a la necesidad de una primera lectura estratégica antes de recomendar una intervención concreta.";
+  }
+
+  if (mainPattern) {
+    return `El diagnóstico ha detectado como bloqueo principal: ${mainPattern.name}.`;
+  }
+
+  if (context?.willing_to_invest === false) {
+    return "No existe disposición suficiente para iniciar una intervención estratégica en este momento.";
   }
 
   return "No existe evidencia diagnóstica suficiente para recomendar una intervención.";
+}
+
+function affectedStrategicAreas(patterns: DiagnosticPattern[]) {
+  return [
+    countMatches(patterns, PACK_AREAS.estrategia) > 0,
+    countMatches(patterns, PACK_AREAS.visibilidad) > 0,
+    countMatches(patterns, PACK_AREAS.sistema) > 0,
+  ].filter(Boolean).length;
+}
+
+function resolveRecommendedPack(
+  patterns: DiagnosticPattern[],
+  context?: DiagnosticContext
+): RecommendedPack {
+  const mainPattern = getMainPattern(patterns);
+
+  if (!mainPattern) {
+    return "No apto todavía";
+  }
+
+  const variables = getVariables(patterns);
+  const estrategiaScore = countMatches(patterns, PACK_AREAS.estrategia);
+  const visibilidadScore = countMatches(patterns, PACK_AREAS.visibilidad);
+  const sistemaScore = countMatches(patterns, PACK_AREAS.sistema);
+
+  const hasProfileProblem =
+    mainPattern.name === "Perfil digital poco alineado" ||
+    variables.has("contenido");
+
+  const hasContentProblem =
+    mainPattern.name === "Contenido sin sistema comercial" ||
+    (variables.has("contenido") && variables.has("captacion"));
+
+  const hasAutomationProblem =
+    mainPattern.name === "Automatización prematura" || variables.has("ia");
+
+  if (mainPattern.name === "Dependencia excesiva de recomendaciones") {
+    return "PLUS Captación y Mensaje";
+  }
+
+  if (mainPattern.name === "Propuesta difícil de entender") {
+    return "NEXO Esencial";
+  }
+
+  if (mainPattern.name === "Seguimiento inconsistente") {
+    return "PLUS Seguimiento y Proceso Comercial";
+  }
+
+  if (mainPattern.name === "Contenido sin sistema comercial") {
+    if (mainPattern.severity >= 8 || patterns.length >= 6) {
+      return "Creación de Contenidos Pro";
+    }
+
+    return "Creación de Contenidos Base";
+  }
+
+  if (mainPattern.name === "Perfil digital poco alineado") {
+    return "Auditoría Estratégica de Redes Sociales";
+  }
+
+  if (
+    mainPattern.name === "Cliente ideal poco definido" ||
+    mainPattern.name === "Falta de diferenciación clara" ||
+    mainPattern.name === "Automatización prematura"
+  ) {
+    return "NEXO Estratégico";
+  }
+
+  if (mainPattern.name === "Operación dependiente de la persona") {
+    return "NEXO Implementación";
+  }
+
+  if (hasAutomationProblem && sistemaScore > estrategiaScore) {
+    return "PLUS Automatización Estratégica";
+  }
+
+  if (hasContentProblem && visibilidadScore >= estrategiaScore) {
+    return patterns.length >= 6
+      ? "Creación de Contenidos Pro"
+      : "Creación de Contenidos Base";
+  }
+
+  if (hasProfileProblem && visibilidadScore > 0 && estrategiaScore === 0) {
+    return "Auditoría Estratégica de Redes Sociales";
+  }
+
+  if (
+    variables.has("seguimiento") ||
+    variables.has("conversion") ||
+    sistemaScore > estrategiaScore
+  ) {
+    return "PLUS Seguimiento y Proceso Comercial";
+  }
+
+  if (
+    variables.has("captacion") ||
+    mainPattern.name.toLowerCase().includes("recomendaciones")
+  ) {
+    return "PLUS Captación y Mensaje";
+  }
+
+  if (
+    variables.has("cliente_ideal") ||
+    variables.has("diferenciacion") ||
+    affectedStrategicAreas(patterns) >= 2
+  ) {
+    return "NEXO Estratégico";
+  }
+
+  if (variables.has("claridad_mensaje") || variables.has("propuesta_valor")) {
+    return "NEXO Esencial";
+  }
+
+  return "Diagnóstico NEXO";
 }
 
 export function buildRecommendations(
@@ -560,34 +647,11 @@ export function buildRecommendations(
     };
   }
 
-  const estrategiaScore = countMatches(patterns, PACK_AREAS.estrategia);
-  const visibilidadScore = countMatches(patterns, PACK_AREAS.visibilidad);
-  const sistemaScore = countMatches(patterns, PACK_AREAS.sistema);
-
-  const affectedAreas = [
-    estrategiaScore > 0 ? "estrategia" : null,
-    visibilidadScore > 0 ? "visibilidad" : null,
-    sistemaScore > 0 ? "sistema" : null,
-  ].filter(Boolean);
-
   const maturityLevel = buildMaturityLevel(patterns);
   const activeStrengths = buildActiveStrengths(patterns, context);
   const priorityPlan = buildPriorityPlan(patterns);
   const recommendedFocus = buildRecommendedFocus(patterns, context);
-
-  let recommendedPack: RecommendedPack = "No apto todavía";
-
-  if (affectedAreas.length >= 3 || patterns.length >= 8) {
-    recommendedPack = "Intervención Completa";
-  } else if (
-    sistemaScore >= estrategiaScore &&
-    sistemaScore >= visibilidadScore &&
-    sistemaScore > 0
-  ) {
-    recommendedPack = "Intervención Sistema";
-  } else if (visibilidadScore > 0 || estrategiaScore > 0) {
-    recommendedPack = "Intervención Visibilidad";
-  }
+  const recommendedPack = resolveRecommendedPack(patterns, context);
 
   const priority =
     mainPattern.severity >= 9 || patterns.length >= 8

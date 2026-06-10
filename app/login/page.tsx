@@ -12,14 +12,25 @@ export default function LoginPage() {
   async function handleLogin() {
     setLoading(true);
     setError(null);
+
     const supabase = createClient();
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
+
     setLoading(false);
-    if (error) setError(error.message);
-    else setSent(true);
+
+    if (error) {
+      console.log("SUPABASE ERROR:", error);
+      setError(error.message);
+      return;
+    }
+
+    setSent(true);
   }
 
   return (

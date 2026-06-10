@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -27,6 +30,9 @@ const MENU_ITEMS = [
 ];
 
 export default function Sidebar() {
+  const params = useParams();
+  const id = params?.id as string;
+
   return (
     <aside
       className="fixed left-0 top-0 z-50 flex h-full w-[260px] flex-col"
@@ -83,10 +89,13 @@ export default function Sidebar() {
       <div className="mx-6 h-px bg-white/10" />
 
       <div className="space-y-2 px-4 py-6">
-        <button className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm text-white transition-all hover:bg-white/5">
+        <Link
+          href={id ? `/diagnoses/${id}` : "/diagnoses"}
+          className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm text-white transition-all hover:bg-white/5"
+        >
           <ArrowLeft size={16} strokeWidth={1.5} />
           <span>Volver al diagnóstico</span>
-        </button>
+        </Link>
 
         <button className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm text-white transition-all hover:bg-[#4FC3F7]/10">
           <FileDown size={16} strokeWidth={1.5} />

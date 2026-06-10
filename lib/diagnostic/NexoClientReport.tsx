@@ -3,7 +3,6 @@ import {
   Page,
   Text,
   View,
-  Image,
   StyleSheet,
 } from "@react-pdf/renderer";
 import type {
@@ -30,11 +29,6 @@ const C = {
   soft: "#F4F8FB",
   line: "#D9E4EC",
 };
-
-function assetUrl(path: string) {
-  if (typeof window === "undefined") return path;
-  return `${window.location.origin}${path}`;
-}
 
 const styles = StyleSheet.create({
   page: {
@@ -220,7 +214,6 @@ const styles = StyleSheet.create({
 
   executiveGrid: {
     flexDirection: "row",
-    gap: 14,
     marginBottom: 40,
   },
 
@@ -232,6 +225,11 @@ const styles = StyleSheet.create({
     borderColor: C.line,
     padding: 18,
     minHeight: 128,
+    marginRight: 14,
+  },
+
+  executiveCardLast: {
+    marginRight: 0,
   },
 
   cardLabel: {
@@ -274,11 +272,15 @@ const styles = StyleSheet.create({
 
   insightGrid: {
     flexDirection: "row",
-    gap: 18,
   },
 
   insightCol: {
     flex: 1,
+    marginRight: 18,
+  },
+
+  insightColLast: {
+    marginRight: 0,
   },
 
   insightCard: {
@@ -444,10 +446,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  closingLogo: {
-    width: 840,
-    height: 210,
-    objectFit: "contain",
+  closingLogoText: {
+    color: C.dark,
+    fontSize: 28,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    letterSpacing: 2,
   },
 
   closingContent: {
@@ -627,14 +631,26 @@ export function NexoClientReport({
   date,
   recommendation,
 }: Props) {
-  const logoDark = assetUrl("/logo-nexo-dark.png");
+  const safeRecommendation: StrategicRecommendation = recommendation || {
+    main_problems: [],
+    active_strengths: [],
+    priority_plan: [],
+    strategic_explanation: "",
+    summary: "",
+    main_bottleneck: "",
+    maturity_level: "",
+    recommended_pack: "",
+    priority: "",
+    recommended_focus: [],
+    pack_reason: "",
+  };
 
-  const problems = recommendation.main_problems ?? [];
+  const problems = safeRecommendation.main_problems ?? [];
   const problemInsights = buildProblemInsights(problems);
-  const strengths = recommendation.active_strengths ?? [];
-  const priorities = recommendation.priority_plan ?? [];
+  const strengths = safeRecommendation.active_strengths ?? [];
+  const priorities = safeRecommendation.priority_plan ?? [];
   const explanation = splitParagraphs(
-    recommendation.strategic_explanation || "—"
+    safeRecommendation.strategic_explanation || "—"
   );
 
   return (
@@ -703,28 +719,28 @@ export function NexoClientReport({
         <Text style={styles.title}>Resumen ejecutivo</Text>
 
         <Text style={styles.executiveText}>
-          {recommendation.summary || "No hay resumen disponible."}
+          {safeRecommendation.summary || "No hay resumen disponible."}
         </Text>
 
         <View style={styles.executiveGrid}>
-          <View style={styles.executiveCard}>
+          <View style={[styles.executiveCard]}>
             <Text style={styles.cardLabel}>Cuello de botella</Text>
             <Text style={styles.cardValue}>
-              {recommendation.main_bottleneck || "No identificado"}
+              {safeRecommendation.main_bottleneck || "No identificado"}
             </Text>
           </View>
 
-          <View style={styles.executiveCard}>
+          <View style={[styles.executiveCard]}>
             <Text style={styles.cardLabel}>Madurez global</Text>
             <Text style={styles.cardValue}>
-              {recommendation.maturity_level || "Sin datos suficientes"}
+              {safeRecommendation.maturity_level || "Sin datos suficientes"}
             </Text>
           </View>
 
-          <View style={styles.executiveCard}>
+          <View style={[styles.executiveCard, styles.executiveCardLast]}>
             <Text style={styles.cardLabel}>Intervención</Text>
             <Text style={styles.cardValue}>
-              {recommendation.recommended_pack || "—"}
+              {safeRecommendation.recommended_pack || "—"}
             </Text>
           </View>
         </View>
@@ -748,7 +764,7 @@ export function NexoClientReport({
         </Text>
 
         <View style={styles.insightGrid}>
-          <View style={styles.insightCol}>
+          <View style={[styles.insightCol]}>
             <ProblemInsight
               title={problemInsights[0].title}
               text={problemInsights[0].text}
@@ -761,7 +777,7 @@ export function NexoClientReport({
             />
           </View>
 
-          <View style={styles.insightCol}>
+          <View style={[styles.insightCol, styles.insightColLast]}>
             <ProblemInsight
               title={problemInsights[2].title}
               text={problemInsights[2].text}
@@ -842,22 +858,22 @@ export function NexoClientReport({
 
         <View style={styles.recommendationBox}>
           <Text style={styles.recommendationMain}>
-            {recommendation.recommended_pack || "Intervención no definida"}
+            {safeRecommendation.recommended_pack || "Intervención no definida"}
           </Text>
 
           <Text style={styles.recLabel}>Prioridad</Text>
           <Text style={styles.recValue}>
-            {(recommendation.priority || "—").toUpperCase()}
+            {(safeRecommendation.priority || "—").toUpperCase()}
           </Text>
 
           <Text style={styles.recLabel}>Foco recomendado</Text>
           <Text style={styles.recValue}>
-            {(recommendation.recommended_focus ?? []).join(", ") || "—"}
+            {(safeRecommendation.recommended_focus ?? []).join(", ") || "—"}
           </Text>
 
           <Text style={styles.recLabel}>Motivo</Text>
           <Text style={styles.recValue}>
-            {recommendation.pack_reason || "—"}
+            {safeRecommendation.pack_reason || "—"}
           </Text>
         </View>
 
@@ -866,7 +882,7 @@ export function NexoClientReport({
 
       <Page size="A4" style={[styles.page, styles.darkPage]}>
         <View style={styles.closingLogoBox}>
-          <Image src={logoDark} style={styles.closingLogo} />
+          <Text style={styles.closingLogoText}>NEXO IA</Text>
         </View>
 
         <View style={styles.closingContent}>

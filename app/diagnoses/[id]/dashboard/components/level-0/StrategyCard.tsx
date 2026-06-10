@@ -21,34 +21,26 @@ function getCardStyles(
 ) {
   if (isPrimary) {
     return {
-      background:
-        "linear-gradient(135deg, rgba(26, 107, 181, 0.46), rgba(15, 27, 45, 0.94))",
-      border: "2px solid rgba(79, 195, 247, 0.70)",
-      shadow:
-        "0 0 0 1px rgba(79,195,247,0.10), 0 18px 55px rgba(79,195,247,0.16), inset 0 1px 0 rgba(255,255,255,0.10)",
-      numberOpacity: "text-white/[0.20]",
-      hoverBorder: "rgba(79, 195, 247, 0.95)",
-      hoverBg:
-        "linear-gradient(135deg, rgba(26, 107, 181, 0.58), rgba(15, 27, 45, 0.98))",
-      hoverShadow:
-        "0 0 0 1px rgba(79,195,247,0.20), 0 22px 70px rgba(79,195,247,0.22), inset 0 1px 0 rgba(255,255,255,0.14)",
+      background: "#0F1B2D",
+      border: "1px solid #1E3A5F",
+      shadow: "0 1px 3px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(30, 58, 95, 0.3)",
+      numberOpacity: "text-[#374151]",
+      hoverBorder: "#2E9ED6",
+      hoverBg: "#162B4D",
+      hoverShadow: "0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(46, 158, 214, 0.2)",
       marker: "PUNTO DE DECISIÓN",
     };
   }
 
   if (isSolution) {
     return {
-      background:
-        "linear-gradient(135deg, rgba(79, 195, 247, 0.22), rgba(15, 27, 45, 0.94))",
-      border: "2px solid rgba(79, 195, 247, 0.62)",
-      shadow:
-        "0 0 0 1px rgba(79,195,247,0.08), 0 18px 55px rgba(79,195,247,0.13), inset 0 1px 0 rgba(255,255,255,0.08)",
-      numberOpacity: "text-white/[0.20]",
-      hoverBorder: "rgba(79, 195, 247, 0.90)",
-      hoverBg:
-        "linear-gradient(135deg, rgba(79, 195, 247, 0.30), rgba(15, 27, 45, 0.98))",
-      hoverShadow:
-        "0 0 0 1px rgba(79,195,247,0.18), 0 22px 70px rgba(79,195,247,0.20), inset 0 1px 0 rgba(255,255,255,0.12)",
+      background: "#0F1B2D",
+      border: "1px solid #1E3A5F",
+      shadow: "0 1px 3px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(30, 58, 95, 0.2)",
+      numberOpacity: "text-[#374151]",
+      hoverBorder: "#2E9ED6",
+      hoverBg: "#162B4D",
+      hoverShadow: "0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(46, 158, 214, 0.15)",
       marker: "RUTA RECOMENDADA",
     };
   }
@@ -56,57 +48,57 @@ function getCardStyles(
   switch (status) {
     case "CRÍTICO":
       return {
-        background: "rgba(239, 68, 68, 0.04)",
-        border: "1px solid rgba(239, 68, 68, 0.12)",
-        shadow: "0 4px 24px rgba(239, 68, 68, 0.03)",
-        numberOpacity: "text-white/[0.10]",
-        hoverBorder: "rgba(239, 68, 68, 0.28)",
-        hoverBg: "rgba(239, 68, 68, 0.08)",
-        hoverShadow: "0 8px 32px rgba(239, 68, 68, 0.06)",
+        background: "#0F1B2D",
+        border: "1px solid #1E3A5F",
+        shadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
+        numberOpacity: "text-[#374151]",
+        hoverBorder: "#374151",
+        hoverBg: "#162B4D",
+        hoverShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
         marker: null,
       };
     case "ATENCIÓN":
       return {
-        background: "rgba(234, 179, 8, 0.03)",
-        border: "1px solid rgba(234, 179, 8, 0.10)",
-        shadow: "0 4px 24px rgba(0, 0, 0, 0.15)",
-        numberOpacity: "text-white/[0.10]",
-        hoverBorder: "rgba(234, 179, 8, 0.25)",
-        hoverBg: "rgba(234, 179, 8, 0.06)",
-        hoverShadow: "0 8px 32px rgba(234, 179, 8, 0.05)",
+        background: "#0F1B2D",
+        border: "1px solid #1E3A5F",
+        shadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
+        numberOpacity: "text-[#374151]",
+        hoverBorder: "#374151",
+        hoverBg: "#162B4D",
+        hoverShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
         marker: null,
       };
     case "FORTALEZA":
       return {
-        background: "rgba(34, 197, 94, 0.04)",
-        border: "1px solid rgba(34, 197, 94, 0.12)",
-        shadow: "0 4px 24px rgba(0, 0, 0, 0.15)",
-        numberOpacity: "text-white/[0.10]",
-        hoverBorder: "rgba(34, 197, 94, 0.25)",
-        hoverBg: "rgba(34, 197, 94, 0.08)",
-        hoverShadow: "0 8px 32px rgba(34, 197, 94, 0.05)",
+        background: "#0F1B2D",
+        border: "1px solid #1E3A5F",
+        shadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
+        numberOpacity: "text-[#374151]",
+        hoverBorder: "#374151",
+        hoverBg: "#162B4D",
+        hoverShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
         marker: null,
       };
     case "INTERVENCIÓN":
       return {
-        background: "rgba(79, 195, 247, 0.06)",
-        border: "1px solid rgba(79, 195, 247, 0.18)",
-        shadow: "0 4px 24px rgba(79, 195, 247, 0.04)",
-        numberOpacity: "text-white/[0.10]",
-        hoverBorder: "rgba(79, 195, 247, 0.40)",
-        hoverBg: "rgba(79, 195, 247, 0.12)",
-        hoverShadow: "0 8px 32px rgba(79, 195, 247, 0.08)",
+        background: "#0F1B2D",
+        border: "1px solid #1E3A5F",
+        shadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
+        numberOpacity: "text-[#374151]",
+        hoverBorder: "#374151",
+        hoverBg: "#162B4D",
+        hoverShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
         marker: null,
       };
     default:
       return {
-        background: "rgba(26, 107, 181, 0.10)",
-        border: "1px solid rgba(47, 158, 214, 0.15)",
-        shadow: "0 4px 24px rgba(0, 0, 0, 0.20)",
-        numberOpacity: "text-white/[0.10]",
-        hoverBorder: "rgba(47, 158, 214, 0.35)",
-        hoverBg: "rgba(26, 107, 181, 0.18)",
-        hoverShadow: "0 8px 32px rgba(0, 0, 0, 0.25)",
+        background: "#0F1B2D",
+        border: "1px solid #1E3A5F",
+        shadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
+        numberOpacity: "text-[#374151]",
+        hoverBorder: "#374151",
+        hoverBg: "#162B4D",
+        hoverShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
         marker: null,
       };
   }
@@ -150,7 +142,7 @@ export default function StrategyCard({
       }}
     >
       <span
-        className={`absolute top-3 right-5 select-none pointer-events-none transition-colors duration-300 group-hover:text-white/[0.24] ${
+        className={`absolute top-3 right-5 select-none pointer-events-none transition-colors duration-300 group-hover:text-[#4B5563] ${
           isFeatured ? "text-7xl" : "text-6xl"
         } font-bold ${styles.numberOpacity}`}
         style={{ fontFamily: "var(--font-title, 'Nunito Sans', sans-serif)" }}
@@ -166,7 +158,7 @@ export default function StrategyCard({
 
           {styles.marker && (
             <span
-              className="rounded-full border border-[#4FC3F7]/40 bg-[#4FC3F7]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#4FC3F7]"
+              className="rounded-full border border-[#4FC3F7]/30 bg-[#4FC3F7]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#4FC3F7]"
               style={{ fontFamily: "var(--font-body, 'Poppins', sans-serif)" }}
             >
               {styles.marker}
@@ -175,7 +167,7 @@ export default function StrategyCard({
         </div>
 
         <h3
-          className="text-lg font-semibold uppercase tracking-[0.02em] text-white leading-snug"
+          className="text-lg font-semibold uppercase tracking-[0.02em] text-[#E5E7EB] leading-snug"
           style={{ fontFamily: "var(--font-title, 'Nunito Sans', sans-serif)" }}
         >
           {title}
@@ -187,7 +179,7 @@ export default function StrategyCard({
         </div>
 
         <p
-          className={`text-[#B0C4DE] leading-relaxed mt-auto ${
+          className={`text-[#9CA3AF] leading-relaxed mt-auto ${
             isFeatured ? "text-[15px] line-clamp-3" : "text-sm line-clamp-2"
           }`}
           style={{ fontFamily: "var(--font-body, 'Poppins', sans-serif)" }}
@@ -195,11 +187,11 @@ export default function StrategyCard({
           {description}
         </p>
 
-        <div className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border border-[#2E9ED6]/30 transition-all duration-300 group-hover:border-[#4FC3F7]/60 group-hover:bg-[#4FC3F7]/10">
+        <div className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border border-[#1E3A5F] transition-all duration-300 group-hover:border-[#4FC3F7]/40 group-hover:bg-[#4FC3F7]/10">
           <ArrowRight
             size={16}
             strokeWidth={1.5}
-            className="text-[#2E9ED6] transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-[#4FC3F7]"
+            className="text-[#4FC3F7] transition-all duration-300 group-hover:translate-x-0.5"
           />
         </div>
       </div>
