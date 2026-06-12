@@ -1,6 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { analyzeAnswers } from "@/lib/diagnostic/engine";
 import type { InternalEval } from "@/lib/internal-fields";
+import {
+  buildCard6,
+  buildCard7,
+  buildCard8,
+  buildCard9,
+} from "@/lib/diagnostic/cards6to9";
 import DashboardView from "./DashboardView";
 
 export const dynamic = "force-dynamic";
@@ -42,6 +48,29 @@ export default async function DashboardPage({
   const answers = (data.answers as Record<string, unknown>) ?? {};
   const diagnosticAnalysis = analyzeAnswers(answers);
 
+  const cards6to9 = [
+    buildCard6(
+      diagnosticAnalysis.variables,
+      diagnosticAnalysis.patterns,
+      diagnosticAnalysis.recommendations
+    ),
+    buildCard7(
+      diagnosticAnalysis.variables,
+      diagnosticAnalysis.patterns,
+      diagnosticAnalysis.recommendations
+    ),
+    buildCard8(
+      diagnosticAnalysis.variables,
+      diagnosticAnalysis.patterns,
+      diagnosticAnalysis.recommendations
+    ),
+    buildCard9(
+      diagnosticAnalysis.variables,
+      diagnosticAnalysis.patterns,
+      diagnosticAnalysis.recommendations
+    ),
+  ];
+
   const fullName =
     [client?.name, client?.last_name]
       .filter(Boolean)
@@ -58,6 +87,7 @@ export default async function DashboardPage({
       createdAt={data.created_at ?? null}
       answers={answers}
       diagnosticAnalysis={diagnosticAnalysis}
+      cards6to9={cards6to9}
       initialInternal={(data.internal_eval as InternalEval) ?? null}
     />
   );
