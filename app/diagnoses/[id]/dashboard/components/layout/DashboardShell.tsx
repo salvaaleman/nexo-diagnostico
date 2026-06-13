@@ -5,12 +5,14 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { generarPdfCliente } from "@/lib/lib/pdf-generator";
 import type { StrategicRecommendation } from "@/lib/diagnostic/recommendations";
+import type { Card6to9Data } from "@/lib/diagnostic/cards6to9";
 
 interface DashboardShellProps {
   children: React.ReactNode;
   clientName: string;
   brand?: string | null;
   recommendation?: StrategicRecommendation;
+  cards6to9?: Card6to9Data[];
 }
 
 export default function DashboardShell({
@@ -18,6 +20,7 @@ export default function DashboardShell({
   clientName,
   brand = null,
   recommendation,
+  cards6to9,
 }: DashboardShellProps) {
   const [generatingPdf, setGeneratingPdf] = useState(false);
 
@@ -30,11 +33,12 @@ export default function DashboardShell({
     setGeneratingPdf(true);
 
     try {
-      await generarPdfCliente({
-        clientName,
-        brand,
-        recommendation,
-      });
+     await generarPdfCliente({
+  clientName,
+  brand,
+  recommendation,
+  cards6to9,
+});
     } catch (error) {
       console.error("ERROR al generar PDF:", error);
       alert("Error al generar PDF. Revisa la consola (F12).");

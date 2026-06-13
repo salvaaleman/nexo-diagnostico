@@ -2,6 +2,7 @@ import { pdf } from "@react-pdf/renderer";
 import { NexoClientReport } from "@/lib/diagnostic/NexoClientReport";
 import { NexoServiceBudgetReport } from "@/lib/diagnostic/NexoServiceBudgetReport";
 import type { StrategicRecommendation } from "@/lib/diagnostic/recommendations";
+import type { Card6to9Data } from "@/lib/diagnostic/cards6to9";
 
 function safeFileName(value: string): string {
   return value
@@ -16,12 +17,14 @@ interface GeneratePdfParams {
   clientName: string;
   brand: string | null;
   recommendation: StrategicRecommendation;
+  cards6to9?: Card6to9Data[];
 }
 
 export async function generarPdfCliente({
   clientName,
   brand,
   recommendation,
+  cards6to9,
 }: GeneratePdfParams): Promise<void> {
   const date = new Date().toLocaleDateString("es-ES");
 
@@ -31,6 +34,7 @@ export async function generarPdfCliente({
       brand={brand}
       date={date}
       recommendation={recommendation}
+      cards6to9={cards6to9}
     />
   ).toBlob();
 

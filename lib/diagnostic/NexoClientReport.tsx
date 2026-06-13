@@ -9,14 +9,27 @@ import type {
   StrategicRecommendation,
   PriorityPlanItem,
 } from "./recommendations";
+import type { Card6to9Data } from "./cards6to9";
 
 type Props = {
   clientName: string;
   brand: string | null;
   date: string;
   recommendation: StrategicRecommendation;
+  cards6to9?: Card6to9Data[];
   alertas?: string[];
   notas?: string;
+};
+
+type ReportAreaCard = {
+  number: string;
+  title: string;
+  status: "CRÍTICO" | "ATENCIÓN" | "FORTALEZA" | "INTERVENCIÓN";
+  score?: number;
+  description: string;
+  resumen?: string;
+  riesgo?: string;
+  reunion?: string;
 };
 
 const C = {
@@ -28,6 +41,9 @@ const C = {
   muted: "#667085",
   soft: "#F4F8FB",
   line: "#D9E4EC",
+  red: "#DC2626",
+  amber: "#D97706",
+  green: "#059669",
 };
 
 const styles = StyleSheet.create({
@@ -434,6 +450,84 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
+  areaCard: {
+    backgroundColor: C.soft,
+    borderWidth: 1,
+    borderColor: C.line,
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 12,
+  },
+
+  areaTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+
+  areaNumber: {
+    color: C.cyan,
+    fontSize: 16,
+    fontFamily: "Helvetica-Bold",
+  },
+
+  areaStatusCritical: {
+    color: C.red,
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+  },
+
+  areaStatusAttention: {
+    color: C.amber,
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+  },
+
+  areaStatusStrength: {
+    color: C.green,
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+  },
+
+  areaTitle: {
+    color: C.dark,
+    fontSize: 12,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    marginBottom: 6,
+  },
+
+  areaScore: {
+    color: C.muted,
+    fontSize: 8.5,
+    marginBottom: 7,
+  },
+
+  areaDescription: {
+    color: C.text,
+    fontSize: 9.4,
+    lineHeight: 1.35,
+    marginBottom: 7,
+  },
+
+  areaLabel: {
+    color: C.blue,
+    fontSize: 7.5,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    marginBottom: 3,
+  },
+
+  areaText: {
+    color: C.muted,
+    fontSize: 8.2,
+    lineHeight: 1.3,
+    marginBottom: 6,
+  },
+
   closingLogoBox: {
     position: "absolute",
     top: 58,
@@ -508,6 +602,48 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+const STATIC_REPORT_CARDS: ReportAreaCard[] = [
+  {
+    number: "01",
+    title: "Problema principal",
+    status: "CRÍTICO",
+    description:
+      "La falta de una propuesta de valor clara está limitando la conversión y el crecimiento sostenible del negocio.",
+  },
+  {
+    number: "02",
+    title: "Oferta confusa",
+    status: "ATENCIÓN",
+    score: 38,
+    description:
+      "La oferta no comunica el valor diferencial de forma efectiva al mercado objetivo.",
+  },
+  {
+    number: "03",
+    title: "Falta de oportunidades",
+    status: "ATENCIÓN",
+    score: 45,
+    description:
+      "Existe dependencia de recomendaciones y no hay un sistema activo de generación de leads.",
+  },
+  {
+    number: "04",
+    title: "Seguimiento débil",
+    status: "CRÍTICO",
+    score: 32,
+    description:
+      "Se pierden oportunidades por falta de seguimiento estructurado y procesos comerciales definidos.",
+  },
+  {
+    number: "05",
+    title: "Posicionamiento insuficiente",
+    status: "ATENCIÓN",
+    score: 41,
+    description:
+      "La marca no está posicionada como referente en la mente del cliente ideal.",
+  },
+];
 
 function Footer({ page, dark = false }: { page: string; dark?: boolean }) {
   return (
@@ -590,6 +726,22 @@ function buildProblemInsights(problems: string[]) {
   ];
 }
 
+function chunkCards<T>(cards: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+
+  for (let i = 0; i < cards.length; i += size) {
+    chunks.push(cards.slice(i, i + size));
+  }
+
+  return chunks;
+}
+
+function getStatusStyle(status: ReportAreaCard["status"]) {
+  if (status === "CRÍTICO") return styles.areaStatusCritical;
+  if (status === "ATENCIÓN") return styles.areaStatusAttention;
+  return styles.areaStatusStrength;
+}
+
 function ProblemInsight({
   title,
   text,
@@ -625,11 +777,52 @@ function ProblemInsight({
   );
 }
 
+function AreaDiagnosticCard({ card }: { card: ReportAreaCard }) {
+  return (
+    <View style={styles.areaCard}>
+      <View style={styles.areaTop}>
+        <Text style={styles.areaNumber}>{card.number}</Text>
+        <Text style={getStatusStyle(card.status)}>{card.status}</Text>
+      </View>
+
+      <Text style={styles.areaTitle}>{card.title}</Text>
+
+      {card.score !== undefined && (
+        <Text style={styles.areaScore}>Puntuación: {card.score} / 100</Text>
+      )}
+
+      <Text style={styles.areaDescription}>{card.description}</Text>
+
+      {card.resumen && (
+        <>
+          <Text style={styles.areaLabel}>Resumen</Text>
+          <Text style={styles.areaText}>{card.resumen}</Text>
+        </>
+      )}
+
+      {card.riesgo && (
+        <>
+          <Text style={styles.areaLabel}>Riesgo estratégico</Text>
+          <Text style={styles.areaText}>{card.riesgo}</Text>
+        </>
+      )}
+
+      {card.reunion && (
+        <>
+          <Text style={styles.areaLabel}>Lectura para la reunión</Text>
+          <Text style={styles.areaText}>{card.reunion}</Text>
+        </>
+      )}
+    </View>
+  );
+}
+
 export function NexoClientReport({
   clientName,
   brand,
   date,
   recommendation,
+  cards6to9,
 }: Props) {
   const safeRecommendation: StrategicRecommendation = recommendation || {
     main_problems: [],
@@ -639,8 +832,8 @@ export function NexoClientReport({
     summary: "",
     main_bottleneck: "",
     maturity_level: "",
-    recommended_pack: "",
-    priority: "",
+    recommended_pack: "" as StrategicRecommendation["recommended_pack"],
+    priority: "" as StrategicRecommendation["priority"],
     recommended_focus: [],
     pack_reason: "",
   };
@@ -652,6 +845,22 @@ export function NexoClientReport({
   const explanation = splitParagraphs(
     safeRecommendation.strategic_explanation || "—"
   );
+
+  const dynamicReportCards: ReportAreaCard[] =
+    cards6to9?.map((card) => ({
+      number: card.number,
+      title: card.title,
+      status: card.status,
+      score: card.score,
+      description: card.description,
+      resumen: card.details?.resumen,
+      riesgo: card.details?.riesgo,
+      reunion: card.details?.reunion,
+    })) ?? [];
+
+  const reportCards = [...STATIC_REPORT_CARDS, ...dynamicReportCards];
+  const areaPages = chunkCards(reportCards, 3);
+  const closingPageNumber = String(8 + areaPages.length).padStart(2, "0");
 
   return (
     <Document>
@@ -880,6 +1089,26 @@ export function NexoClientReport({
         <Footer page="07" />
       </Page>
 
+      {areaPages.map((cards, pageIndex) => (
+        <Page key={`areas-${pageIndex}`} size="A4" style={styles.page}>
+          <Text style={styles.kicker}>Diagnóstico completo</Text>
+          <Text style={styles.title}>Diagnóstico de las 9 áreas</Text>
+
+          <Text style={styles.intro}>
+            Lectura ampliada de las áreas estratégicas evaluadas por NEXO IA.
+            Esta sección complementa el resumen ejecutivo y permite revisar con
+            mayor claridad dónde se concentran los bloqueos, riesgos y
+            prioridades.
+          </Text>
+
+          {cards.map((card) => (
+            <AreaDiagnosticCard key={card.number} card={card} />
+          ))}
+
+          <Footer page={String(8 + pageIndex).padStart(2, "0")} />
+        </Page>
+      ))}
+
       <Page size="A4" style={[styles.page, styles.darkPage]}>
         <View style={styles.closingLogoBox}>
           <Text style={styles.closingLogoText}>NEXO IA</Text>
@@ -891,7 +1120,7 @@ export function NexoClientReport({
             Es ordenar lo que genera impacto.
           </Text>
 
-          <Text style={styles.closingBrandDivider} />
+          <View style={styles.closingBrandDivider} />
 
           <Text style={styles.closingText}>
             Este informe identifica los principales factores que actualmente
@@ -900,7 +1129,7 @@ export function NexoClientReport({
             ejecutable.
           </Text>
 
-          <Text style={styles.closingBrandDivider} />
+          <View style={styles.closingBrandDivider} />
 
           <Text style={styles.closingBrand}>Nexo IA</Text>
           <Text style={styles.closingSub}>
@@ -908,7 +1137,7 @@ export function NexoClientReport({
           </Text>
         </View>
 
-        <Footer page="08" dark />
+        <Footer page={closingPageNumber} dark />
       </Page>
     </Document>
   );

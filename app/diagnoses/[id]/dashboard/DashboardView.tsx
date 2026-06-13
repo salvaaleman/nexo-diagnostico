@@ -172,10 +172,11 @@ export default function DashboardView({
   if (useExecutivePreview) {
     return (
       <DashboardShell
-        clientName={clientName}
-        brand={brand}
-        recommendation={r}
-      >
+  clientName={clientName}
+  brand={brand}
+  recommendation={r}
+  cards6to9={cards6to9}
+>
         <div className="space-y-6">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
