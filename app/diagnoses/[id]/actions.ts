@@ -2,9 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { analyzeAnswers } from "@/lib/diagnostic/engine";
+import { analyzeV2 } from "../../../lib/diagnostic-v2/analyze";
 
-// Guarda las respuestas del cliente y añade el análisis automático.
+// Guarda las respuestas del cliente y añade el análisis automático V2.
 // Conserva cualquier evaluación interna manual existente.
 export async function saveAnswers(
   id: string,
@@ -12,7 +12,8 @@ export async function saveAnswers(
   finish: boolean
 ) {
   const supabase = await createClient();
-  const diagnosticAnalysis = analyzeAnswers(answers);
+
+  const diagnosticV2 = analyzeV2(answers);
 
   const { data: current } = await supabase
     .from("diagnoses")
@@ -31,13 +32,18 @@ export async function saveAnswers(
     answers,
     internal_eval: {
       ...previousInternal,
-      diagnostic: diagnosticAnalysis,
+      diagnostic_v2: diagnosticV2.report,
+      diagnostic_v2_raw: diagnosticV2,
     },
   };
 
   if (finish) update.status = "completado";
 
-  await supabase.from("diagnoses").update(update).eq("id", id);
+  const { error } = await supabase.from("diagnoses").update(update).eq("id", id);
+
+  if (error) {
+    throw new Error(`Error guardando diagnóstico: ${error.message}`);
+  }
 
   revalidatePath(`/diagnoses/${id}`);
   revalidatePath(`/diagnoses/${id}/interno`);

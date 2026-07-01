@@ -36,82 +36,100 @@ export function toMarkdown(
 
   if (internal) {
     lines.push("---");
-    lines.push("## Informe Estratégico Nexo IA");
+    lines.push("## Evaluación Interna NEXO IA V2");
     lines.push("");
 
     lines.push(`**Alertas:** ${val(internal.alertas)}`);
     lines.push("");
-
-    const r = internal.recommendation;
-
-    lines.push("### Diagnóstico estratégico");
+    lines.push(`**Notas internas:** ${val(internal.notas)}`);
     lines.push("");
 
-    lines.push("**Resumen:**");
-    lines.push(val(r?.summary));
-    lines.push("");
+    const diagnostic = internal.diagnostic_v2;
 
-    lines.push("**Problemas detectados:**");
-    if (Array.isArray(r?.main_problems) && r.main_problems.length > 0) {
-      for (const problem of r.main_problems) {
-        lines.push(`- ${problem}`);
+    if (diagnostic) {
+      lines.push("### Diagnóstico estratégico");
+      lines.push("");
+
+      lines.push("**Resumen:**");
+      lines.push(val(diagnostic.resumen));
+      lines.push("");
+
+      lines.push("### Índices NEXO");
+      lines.push("");
+
+      if (Array.isArray(diagnostic.indices) && diagnostic.indices.length > 0) {
+        for (const index of diagnostic.indices) {
+          lines.push(`- ${index.name}: ${index.score}/100 (${index.level})`);
+        }
+      } else {
+        lines.push("—");
       }
-    } else {
-      lines.push("—");
-    }
-    lines.push("");
 
-    lines.push("**Cuello de botella principal:**");
-    lines.push(val(r?.main_bottleneck));
-    lines.push("");
+      lines.push("");
 
-    lines.push("**Madurez global:**");
-    lines.push(val(r?.maturity_level));
-    lines.push("");
+      lines.push("### Fricciones detectadas");
+      lines.push("");
 
-    lines.push("**Fortalezas activas:**");
-    if (Array.isArray(r?.active_strengths) && r.active_strengths.length > 0) {
-      for (const strength of r.active_strengths) {
-        lines.push(`- ${strength}`);
-      }
-    } else {
-      lines.push("—");
-    }
-    lines.push("");
-
-    lines.push("**Plan de prioridades:**");
-    if (Array.isArray(r?.priority_plan) && r.priority_plan.length > 0) {
-      r.priority_plan.forEach((item, index) => {
-        lines.push(`${index + 1}. ${item.title}`);
-        lines.push(`   ${item.reason}`);
+      if (Array.isArray(diagnostic.frictions) && diagnostic.frictions.length > 0) {
+        for (const friction of diagnostic.frictions) {
+          lines.push(`#### ${friction.name}`);
+          lines.push(`- Categoría: ${friction.category}`);
+          lines.push(`- Intensidad: ${friction.severity}`);
+          lines.push(`- Confianza: ${friction.confidence}`);
+          lines.push(`- Puntuación: ${friction.score}`);
+          lines.push(`- Descripción: ${friction.description}`);
+          lines.push(`- Recomendación: ${val(friction.recommendation)}`);
+          lines.push("");
+        }
+      } else {
+        lines.push("—");
         lines.push("");
-      });
-    } else {
-      lines.push("—");
+      }
+
+      lines.push("### Causa raíz");
+      lines.push("");
+
+      lines.push(`**${val(diagnostic.rootCause.title)}**`);
+      lines.push("");
+      lines.push(val(diagnostic.rootCause.description));
+      lines.push("");
+
+      lines.push("### Hoja de ruta");
+      lines.push("");
+
+      lines.push("#### Ahora");
+      if (diagnostic.roadmap.ahora.length > 0) {
+        for (const item of diagnostic.roadmap.ahora) {
+          lines.push(`- ${item.title}: ${item.description}`);
+        }
+      } else {
+        lines.push("—");
+      }
+
+      lines.push("");
+
+      lines.push("#### 30 días");
+      if (diagnostic.roadmap.dias30.length > 0) {
+        for (const item of diagnostic.roadmap.dias30) {
+          lines.push(`- ${item.title}: ${item.description}`);
+        }
+      } else {
+        lines.push("—");
+      }
+
+      lines.push("");
+
+      lines.push("#### 90 días");
+      if (diagnostic.roadmap.dias90.length > 0) {
+        for (const item of diagnostic.roadmap.dias90) {
+          lines.push(`- ${item.title}: ${item.description}`);
+        }
+      } else {
+        lines.push("—");
+      }
+
       lines.push("");
     }
-
-    lines.push("**Qué está ocurriendo realmente:**");
-    lines.push(val(r?.strategic_explanation));
-    lines.push("");
-
-    lines.push("**Intervención recomendada:**");
-    lines.push(val(r?.recommended_pack));
-    lines.push("");
-
-    lines.push("**Prioridad:**");
-    lines.push(val(r?.priority));
-    lines.push("");
-
-    lines.push("**Foco recomendado:**");
-    lines.push(val(r?.recommended_focus));
-    lines.push("");
-
-    lines.push("**Por qué esta intervención:**");
-    lines.push(val(r?.pack_reason));
-    lines.push("");
-
-    lines.push(`**Notas internas:** ${val(internal.notas)}`);
   }
 
   return lines.join("\n");

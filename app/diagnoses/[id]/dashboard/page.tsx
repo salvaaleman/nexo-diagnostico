@@ -1,12 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { analyzeAnswers } from "@/lib/diagnostic/engine";
+import { analyzeV2 } from "@/lib/diagnostic-v2/analyze";
 import type { InternalEval } from "@/lib/internal-fields";
-import {
-  buildCard6,
-  buildCard7,
-  buildCard8,
-  buildCard9,
-} from "@/lib/diagnostic/cards6to9";
 import DashboardView from "./DashboardView";
 
 export const dynamic = "force-dynamic";
@@ -46,30 +40,7 @@ export default async function DashboardPage({
     .maybeSingle();
 
   const answers = (data.answers as Record<string, unknown>) ?? {};
-  const diagnosticAnalysis = analyzeAnswers(answers);
-
-  const cards6to9 = [
-    buildCard6(
-      diagnosticAnalysis.variables,
-      diagnosticAnalysis.patterns,
-      diagnosticAnalysis.recommendations
-    ),
-    buildCard7(
-      diagnosticAnalysis.variables,
-      diagnosticAnalysis.patterns,
-      diagnosticAnalysis.recommendations
-    ),
-    buildCard8(
-      diagnosticAnalysis.variables,
-      diagnosticAnalysis.patterns,
-      diagnosticAnalysis.recommendations
-    ),
-    buildCard9(
-      diagnosticAnalysis.variables,
-      diagnosticAnalysis.patterns,
-      diagnosticAnalysis.recommendations
-    ),
-  ];
+  const diagnosticV2 = analyzeV2(answers);
 
   const fullName =
     [client?.name, client?.last_name]
@@ -86,8 +57,12 @@ export default async function DashboardPage({
       status={data.status ?? "borrador"}
       createdAt={data.created_at ?? null}
       answers={answers}
-      diagnosticAnalysis={diagnosticAnalysis}
-      cards6to9={cards6to9}
+      diagnosticReport={diagnosticV2.report}
+      diagnosticV2={{
+        engine: diagnosticV2.engine,
+        report: diagnosticV2.report,
+        analyzedAt: diagnosticV2.analyzedAt,
+      }}
       initialInternal={(data.internal_eval as InternalEval) ?? null}
     />
   );

@@ -441,6 +441,10 @@ const SIGNAL_RULES: SignalRule[] = [
   },
 ];
 
+/* =========================
+   DETECTOR POR RESPUESTA
+========================= */
+
 export function detectSignalsFromAnswer(
   questionId: string,
   answer: unknown

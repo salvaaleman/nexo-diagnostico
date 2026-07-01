@@ -1,8 +1,8 @@
 import { pdf } from "@react-pdf/renderer";
-import { NexoClientReport } from "@/lib/diagnostic/NexoClientReport";
+import NexoExecutivePdfV1 from "@/lib/diagnostic-report/NexoExecutivePdfV1";
 import { NexoServiceBudgetReport } from "@/lib/diagnostic/NexoServiceBudgetReport";
+import type { DiagnosticReport } from "@/lib/diagnostic-report/types";
 import type { StrategicRecommendation } from "@/lib/diagnostic/recommendations";
-import type { Card6to9Data } from "@/lib/diagnostic/cards6to9";
 
 function safeFileName(value: string): string {
   return value
@@ -13,36 +13,32 @@ function safeFileName(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-interface GeneratePdfParams {
+interface GenerateV2PdfParams {
+  clientName: string;
+  report: DiagnosticReport;
+}
+
+interface GenerateServiceBudgetPdfParams {
   clientName: string;
   brand: string | null;
   recommendation: StrategicRecommendation;
-  cards6to9?: Card6to9Data[];
 }
 
 export async function generarPdfCliente({
   clientName,
-  brand,
-  recommendation,
-  cards6to9,
-}: GeneratePdfParams): Promise<void> {
-  const date = new Date().toLocaleDateString("es-ES");
-
+  report,
+}: GenerateV2PdfParams): Promise<void> {
   const blob = await pdf(
-    <NexoClientReport
-      clientName={clientName}
-      brand={brand}
-      date={date}
-      recommendation={recommendation}
-      cards6to9={cards6to9}
-    />
+    <NexoExecutivePdfV1 report={report} clientName={clientName} />
   ).toBlob();
 
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
 
   link.href = url;
-  link.download = `evaluacion-comercial-nexo-ia-${safeFileName(clientName)}.pdf`;
+  link.download = `diagnostico-estrategico-nexo-ia-${safeFileName(
+    clientName
+  )}.pdf`;
 
   document.body.appendChild(link);
   link.click();
@@ -55,7 +51,7 @@ export async function generarPdfPresupuestoServicio({
   clientName,
   brand,
   recommendation,
-}: GeneratePdfParams): Promise<void> {
+}: GenerateServiceBudgetPdfParams): Promise<void> {
   const date = new Date().toLocaleDateString("es-ES");
 
   const blob = await pdf(
@@ -71,7 +67,9 @@ export async function generarPdfPresupuestoServicio({
   const link = document.createElement("a");
 
   link.href = url;
-  link.download = `presupuesto-servicio-nexo-ia-${safeFileName(clientName)}.pdf`;
+  link.download = `presupuesto-servicio-nexo-ia-${safeFileName(
+    clientName
+  )}.pdf`;
 
   document.body.appendChild(link);
   link.click();

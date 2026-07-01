@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { analyzeV2 } from "@/lib/diagnostic-v2/analyze";
 import type { InternalEval } from "@/lib/internal-fields";
-import DashboardView from "@/app/diagnoses/[id]/dashboard/DashboardView";
+import DashboardContentExecutiveV3 from "@/app/diagnoses/[id]/dashboard/DashboardContentExecutiveV3";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +49,7 @@ export default async function DashboardPage({
       .trim() || "Cliente";
 
   return (
-    <DashboardView
+    <DashboardContentExecutiveV3
       id={data.id}
       clientId={data.client_id}
       clientName={fullName}

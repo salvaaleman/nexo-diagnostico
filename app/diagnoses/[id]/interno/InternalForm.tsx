@@ -1,15 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { pdf } from "@react-pdf/renderer";
 import { QUESTION_BLOCKS } from "@/lib/questions";
-import {
-  ALERTAS,
-  emptyInternalEval,
-  type InternalEval,
-} from "@/lib/internal-fields";
-import type { StrategicRecommendation } from "@/lib/diagnostic/recommendations";
-import { NexoClientReport } from "@/lib/diagnostic/NexoClientReport";
+import { ALERTAS, emptyInternalEval, type InternalEval } from "@/lib/internal-fields";
 import { toMarkdown } from "@/lib/export";
 import { saveInternalEval } from "./actions";
 
@@ -21,90 +14,31 @@ function val(v: unknown): string {
   return String(v);
 }
 
-function normalizeRecommendation(
-  recommendation: StrategicRecommendation | InternalEval["recommendation"] | null,
-  fallback: InternalEval["recommendation"]
-): InternalEval["recommendation"] {
-  const empty = emptyInternalEval().recommendation;
-  const source = (recommendation ?? fallback) as any;
-
-  const recommendedPack =
-    source.recommended_pack ??
-    source.pack_final ??
-    source.pack_auto ??
-    fallback.recommended_pack;
-
-  const priority = source.priority ?? fallback.priority ?? "baja";
-
-  return {
-    ...empty,
-    ...fallback,
-    ...source,
-    recommended_pack: recommendedPack,
-    priority,
-    pack_reason: source.pack_reason ?? source.motivo ?? fallback.pack_reason ?? "",
-    recommended_focus: Array.isArray(source.recommended_focus)
-      ? source.recommended_focus
-      : fallback.recommended_focus ?? [],
-  };
-}
-
-function safeFileName(value: string) {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export default function InternalForm({
   id,
   clientName,
   brand,
   answers,
   initialInternal,
-  diagnosticAnalysis,
 }: {
   id: string;
   clientName: string;
   brand: string | null;
   answers: Answers;
   initialInternal: InternalEval | null;
-  diagnosticAnalysis: { recommendations: StrategicRecommendation } | null;
+  diagnosticAnalysis?: unknown;
 }) {
-  const strategic = diagnosticAnalysis?.recommendations ?? null;
-
-  const baseRecommendation = normalizeRecommendation(
-    strategic,
-    emptyInternalEval().recommendation
-  );
-
   const [internal, setInternal] = useState<InternalEval>(() => {
-    if (initialInternal && Object.keys(initialInternal).length) {
-      return {
-        ...emptyInternalEval(),
-        ...initialInternal,
-        recommendation: normalizeRecommendation(
-          initialInternal.recommendation?.main_bottleneck
-            ? initialInternal.recommendation
-            : baseRecommendation,
-          baseRecommendation
-        ),
-      };
-    }
-
     return {
       ...emptyInternalEval(),
-      recommendation: baseRecommendation,
+      ...(initialInternal ?? {}),
     };
   });
 
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [generatingPdf, setGeneratingPdf] = useState(false);
 
-  const r = normalizeRecommendation(internal.recommendation, baseRecommendation);
+  const diagnostic = internal.diagnostic_v2;
 
   function toggleAlerta(a: string) {
     const cur = internal.alertas ?? [];
@@ -117,163 +51,116 @@ export default function InternalForm({
 
   async function guardar() {
     setSaving(true);
-    await saveInternalEval(id, {
-      ...internal,
-      recommendation: r,
-    });
+    await saveInternalEval(id, internal);
     setSaving(false);
   }
 
   async function copiarMarkdown() {
-    const md = toMarkdown(clientName, brand, answers, {
-      ...internal,
-      recommendation: r,
-    });
+    const md = toMarkdown(clientName, brand, answers, internal);
 
     await navigator.clipboard.writeText(md);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
 
-  async function generarPdfCliente() {
-    setGeneratingPdf(true);
-
-    const date = new Date().toLocaleDateString("es-ES");
-
-    const blob = await pdf(
-      <NexoClientReport
-        clientName={clientName}
-        brand={brand}
-        date={date}
-        recommendation={r}
-        alertas={internal.alertas}
-        notas={internal.notas}
-      />
-    ).toBlob();
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = `informe-nexo-ia-${safeFileName(clientName)}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    URL.revokeObjectURL(url);
-    setGeneratingPdf(false);
-  }
-
   return (
     <div className="space-y-10">
       <section className="bg-card border border-line rounded-lg p-6">
-        <h2 className="font-display text-xl mb-4">Análisis estratégico Nexo IA</h2>
+        <h2 className="font-display text-xl mb-4">Análisis estratégico NEXO IA V2</h2>
 
-        {strategic ? (
-          <div className="space-y-5">
+        {diagnostic ? (
+          <div className="space-y-6">
             <div>
               <p className="label mb-1">Resumen</p>
-              <p className="text-sm text-muted">{strategic.summary}</p>
+              <p className="text-sm text-muted">{diagnostic.resumen}</p>
             </div>
 
             <div>
-              <p className="label mb-1">Problemas detectados</p>
-              {strategic.main_problems.length > 0 ? (
-                <ul className="list-disc pl-5 text-sm text-muted space-y-1">
-                  {strategic.main_problems.map((problem: string) => (
-                    <li key={problem}>{problem}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted">
-                  No se detectaron patrones con las respuestas actuales.
-                </p>
-              )}
+              <p className="label mb-2">Índices NEXO</p>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {diagnostic.indices.map((index) => (
+                  <div key={index.id} className="rounded-lg border border-line p-4">
+                    <p className="text-sm font-medium">{index.name}</p>
+                    <p className="text-2xl font-bold">{index.score}/100</p>
+                    <p className="text-xs text-muted">{index.level}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div>
-              <p className="label mb-1">Cuello de botella principal</p>
-              <p className="text-sm font-medium">
-                {strategic.main_bottleneck || "No identificado"}
-              </p>
-            </div>
-
-            <div>
-              <p className="label mb-1">Madurez global</p>
-              <p className="text-sm font-medium">
-                {strategic.maturity_level || "Sin datos suficientes"}
-              </p>
-            </div>
-
-            <div>
-              <p className="label mb-1">Fortalezas activas</p>
-              {strategic.active_strengths?.length ? (
-                <ul className="list-disc pl-5 text-sm text-muted space-y-1">
-                  {strategic.active_strengths.map((strength: string) => (
-                    <li key={strength}>{strength}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted">
-                  No se detectaron fortalezas destacables.
-                </p>
-              )}
-            </div>
-
-            <div>
-              <p className="label mb-1">Plan de prioridades</p>
-              {strategic.priority_plan?.length ? (
+              <p className="label mb-2">Fricciones detectadas</p>
+              {diagnostic.frictions.length > 0 ? (
                 <div className="space-y-3">
-                  {strategic.priority_plan.map(
-                    (item: { title: string; reason: string }, index: number) => (
-                      <div key={`${item.title}-${index}`}>
-                        <p className="text-sm font-medium">
-                          {index + 1}. {item.title}
-                        </p>
-                        <p className="text-sm text-muted">{item.reason}</p>
-                      </div>
-                    )
-                  )}
+                  {diagnostic.frictions.map((friction) => (
+                    <div key={friction.id} className="rounded-lg border border-line p-4">
+                      <p className="text-sm font-bold">{friction.name}</p>
+                      <p className="text-sm text-muted mt-1">{friction.description}</p>
+                      <p className="text-xs text-muted mt-2">
+                        Severidad: {friction.severity} · Confianza: {friction.confidence} · Puntuación: {friction.score}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted">
-                  No hay prioridades definidas todavía.
-                </p>
+                <p className="text-sm text-muted">No se detectaron fricciones suficientes.</p>
               )}
             </div>
 
             <div>
-              <p className="label mb-1">Qué está ocurriendo realmente</p>
-              <p className="text-sm text-muted">{strategic.strategic_explanation}</p>
-            </div>
-
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div>
-                <p className="label mb-1">Intervención recomendada</p>
-                <p className="text-sm font-medium">{strategic.recommended_pack}</p>
-              </div>
-
-              <div>
-                <p className="label mb-1">Prioridad</p>
-                <p className="text-sm font-medium">{strategic.priority}</p>
-              </div>
-
-              <div>
-                <p className="label mb-1">Foco recomendado</p>
-                <p className="text-sm text-muted">
-                  {strategic.recommended_focus.join(", ") || "—"}
-                </p>
-              </div>
+              <p className="label mb-1">Causa raíz</p>
+              <p className="text-sm font-medium">{diagnostic.rootCause.title}</p>
+              <p className="text-sm text-muted mt-1">{diagnostic.rootCause.description}</p>
             </div>
 
             <div>
-              <p className="label mb-1">Por qué esta intervención</p>
-              <p className="text-sm text-muted">{strategic.pack_reason || "—"}</p>
+              <p className="label mb-2">Hoja de ruta</p>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-bold">Ahora</p>
+                  {diagnostic.roadmap.ahora.length ? (
+                    diagnostic.roadmap.ahora.map((item) => (
+                      <p key={item.title} className="text-sm text-muted">
+                        - {item.title}: {item.description}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted">—</p>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-sm font-bold">30 días</p>
+                  {diagnostic.roadmap.dias30.length ? (
+                    diagnostic.roadmap.dias30.map((item) => (
+                      <p key={item.title} className="text-sm text-muted">
+                        - {item.title}: {item.description}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted">—</p>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-sm font-bold">90 días</p>
+                  {diagnostic.roadmap.dias90.length ? (
+                    diagnostic.roadmap.dias90.map((item) => (
+                      <p key={item.title} className="text-sm text-muted">
+                        - {item.title}: {item.description}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted">—</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         ) : (
           <p className="text-sm text-muted">
-            Todavía no hay análisis estratégico disponible.
+            Todavía no hay análisis V2 disponible. Finaliza o vuelve a guardar el diagnóstico del cliente.
           </p>
         )}
       </section>
@@ -342,14 +229,6 @@ export default function InternalForm({
 
         <button className="btn-ghost btn" onClick={copiarMarkdown}>
           {copied ? "Copiado ✓" : "Copiar Markdown"}
-        </button>
-
-        <button
-          className="btn-ghost btn"
-          onClick={generarPdfCliente}
-          disabled={generatingPdf}
-        >
-          {generatingPdf ? "Generando PDF…" : "Generar PDF Cliente"}
         </button>
       </div>
     </div>

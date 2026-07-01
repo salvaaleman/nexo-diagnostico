@@ -2,7 +2,7 @@
 // internal-fields.ts — TODO esto es 100% INTERNO.
 // Se guarda en la columna `internal_eval` (jsonb) de la tabla `diagnoses`.
 
-import type { StrategicRecommendation } from "./diagnostic/recommendations";
+import type { DiagnosticResult } from "./diagnostic-v2/types";
 
 // ────────────────────────────────────────────────────────────────────────
 // 1) ALERTAS INTERNAS
@@ -27,30 +27,16 @@ export const ALERTAS: string[] = [
 // 2) EVALUACIÓN INTERNA
 // ────────────────────────────────────────────────────────────────────────
 
-export type Recommendation = StrategicRecommendation;
-
 export interface InternalEval {
   alertas: string[];
-  recommendation: Recommendation;
   notas: string;
+  diagnostic_v2: DiagnosticResult | null;
 }
 
 export function emptyInternalEval(): InternalEval {
   return {
     alertas: [],
-    recommendation: {
-      summary: "",
-      main_problems: [],
-      main_bottleneck: "",
-      maturity_level: "",
-      active_strengths: [],
-      priority_plan: [],
-      strategic_explanation: "",
-      recommended_focus: [],
-      recommended_pack: "No apto todavía",
-      pack_reason: "",
-      priority: "baja",
-    },
     notas: "",
+    diagnostic_v2: null,
   };
 }
